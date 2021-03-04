@@ -1,14 +1,14 @@
 package main;
 
+import main.repositories.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanResult;
-import redis.clients.jedis.Tuple;
+
+import java.util.HashMap;
 
 @SpringBootApplication
 public class Main implements ApplicationRunner {
@@ -25,11 +25,13 @@ public class Main implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args)  {
 
-        Jedis jedis = new Jedis();
-        ScanResult<Tuple> scanResult = jedis.zscan("cities:1", String.valueOf(0));
-        scanResult.getResult().stream().forEach(o -> System.out.println(o.getScore() + "," + o.getElement()));
+        RedisRepository repository = context.getBean("redisRepository", RedisRepository.class);
+        HashMap<String, Integer> citiesMap = repository.getCities();
+        for(String key: citiesMap.keySet()) {
+            System.out.println(key + " : " + citiesMap.get(key));
+        }
 
     }
 
